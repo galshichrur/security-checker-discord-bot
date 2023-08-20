@@ -1,6 +1,9 @@
+// Import necessary modules and classes
 import Utils from "../utils/utils.js";
 import config from "../config.js";
 import Discord from "discord.js";
+
+// Destructure necessary components from the Discord module
 const {
 	ButtonBuilder,
 	ActionRowBuilder,
@@ -9,14 +12,17 @@ const {
 	ChannelType,
 } = Discord;
 
+// Export the main function that handles interactions
 export default (Bot) => {
 	Bot.on("interactionCreate", async (interaction) => {
+		// Handle ModalSubmit interactions
 		if (interaction.type === InteractionType.ModalSubmit) {
 			if (interaction.customId === "securityCheck") {
+				// Extract security check questions
 				let QuestionName = config.security_check.questions.map((x) => x.name);
 
 				let fields = [];
-
+				// Collect fields from interaction
 				[interaction.fields].map((z) =>
 					z.fields.map((x) => {
 						fields.push(x);
@@ -34,10 +40,12 @@ export default (Bot) => {
 					(x, index) => `\n**${x.QuestionName}: ${x.Value}**`
 				).join();
 
+				// Find or create a channel for the security check
 				const Channel = interaction.guild.channels.cache.find(
 					(x) => x.name === "🚓・" + interaction.user.username
 				);
 
+				// Defer the reply and handle channel creation
 				await interaction.deferReply({ ephemeral: true });
 
 				if (Channel) {
@@ -46,6 +54,7 @@ export default (Bot) => {
 						ephemeral: true,
 					});
 				} else {
+					// Construct permissions for the channel
 					let PermissionsArray = [
 						{
 							id: interaction.user.id,
@@ -72,10 +81,11 @@ export default (Bot) => {
 						});
 					});
 
+					// Create the security check channel
 					interaction.guild.channels
 						.create({
-							name: "🚓・" + interaction.user.username,
-							topic: "בידוק בטחוני ל-" + interaction.user.id,
+							name: "🚓・" + interaction.user.username, // Set channel name with a prefix and user's username
+							topic: "בידוק בטחוני ל-" + interaction.user.id, // Set the topic with user's ID
 							type: ChannelType.GuildText,
 							parent: config.security_check.category,
 							permissionOverwrites: PermissionsArray,
@@ -86,6 +96,7 @@ export default (Bot) => {
 								ephemeral: true,
 							});
 
+							// Send security check information and buttons
 							Channel.send({
 								content: `[||@everyone||]`,
 								embeds: [
@@ -107,13 +118,17 @@ export default (Bot) => {
 			}
 		}
 
+		// Handle Button interactions
 		if (!interaction.isButton()) return;
 
+		// Show the security check modal
 		if (interaction.customId === "securityCheck") {
 			await interaction.showModal(Utils.modal());
 		}
 
+		// Handle success button interaction
 		if (interaction.customId === "successSecurityCheck") {
+			// Handle conditions for approving the security check
 			if (
 				interaction.channel.parentId === config.security_check.archive_category
 			)
@@ -134,10 +149,8 @@ export default (Bot) => {
 					ephemeral: true,
 				});
 			} else {
-				// Find the existing buttons
+				// Disable buttons
 				const existingButtons = interaction.message.components[0].components;
-
-				// Update the properties of the existing buttons to set them as disabled
 				existingButtons[0] = ButtonBuilder.from(existingButtons[0]).setDisabled(
 					true
 				);
@@ -154,25 +167,31 @@ export default (Bot) => {
 					],
 				});
 
+				// Follow-up message
 				interaction.followUp({
 					content: `אישרת בהצלחה את בדיקת הבטחון.`,
 					ephemeral: true,
 				});
 
+				// Extract user ID from the channel topic
 				const userId = interaction.channel.topic.replace("בידוק בטחוני ל-", "");
 				const member = interaction.guild.members.cache.get(userId);
 
+				// Fetch verified role
 				const verifiedRole = await interaction.guild.roles.fetch(
 					config.security_check.verified_roles
 				);
 
+				// Assign verified role to the member
 				member.roles.add(verifiedRole).catch(console.error);
 
+				// Send a message indicating successful verification
 				interaction.channel.send({
 					content: `[✅] היי <@!${userId}>, הבדיקה הביטחונית אושרה בהצלחה על ידי צוות הבידוק. חדר זה יעבור לארכיון בעוד כ15 שניות.`,
 				});
 
 				setTimeout(() => {
+					// Move the channel to the archive category and remove user permissions
 					let Parent = interaction.guild.channels.cache.get(
 						config.security_check.archive_category
 					);
@@ -182,7 +201,10 @@ export default (Bot) => {
 					interaction.channel
 						.setParent(Parent.id, { lockPermissions: true })
 						.then(async (x) => {
+							// Rename the channel
 							x.setName(interaction.channel.name.replace("🚓", "📁✅"));
+
+							// Edit the message to remove components and update the embed
 							interaction.message.edit({
 								embeds: [
 									Utils.embed(
@@ -198,6 +220,7 @@ export default (Bot) => {
 							});
 						});
 
+					// Send a success message
 					interaction.channel.send({
 						content: `החשוד אומת בהצלחה וחדר זה עבר לארכיון.`,
 					});
@@ -205,10 +228,12 @@ export default (Bot) => {
 			}
 		}
 
+		// Handle fail button interaction
 		if (interaction.customId === "failSecurityCheck") {
 			if (
 				interaction.channel.parentId === config.security_check.archive_category
 			)
+				// Handle already archived channel
 				return interaction.followUp({
 					content: `חדר זה כבר נמצא בארכיון`,
 					ephemeral: true,
@@ -219,6 +244,7 @@ export default (Bot) => {
 				) &&
 				![interaction.guild.ownerId].includes(interaction.user.id)
 			) {
+				// Handle unauthorized user
 				await interaction.deferReply({ ephemeral: true });
 
 				return interaction.followUp({
@@ -246,6 +272,7 @@ export default (Bot) => {
 					],
 				});
 
+				// Send failure messages and handle channel archive
 				interaction.followUp({
 					content: `פסלת בהצלחה את בדיקת הבטחון.`,
 					ephemeral: true,
@@ -267,7 +294,10 @@ export default (Bot) => {
 					interaction.channel
 						.setParent(Parent.id, { lockPermissions: true })
 						.then(async (x) => {
+							// Rename the channel
 							x.setName(interaction.channel.name.replace("🚓", "📁❌"));
+
+							// Edit the message to remove components and update the embed
 							interaction.message.edit({
 								embeds: [
 									Utils.embed(
@@ -283,6 +313,7 @@ export default (Bot) => {
 							});
 						});
 
+					// Send a failure message
 					interaction.channel.send({
 						content: `החשוד נכשל וחדר זה עבר לארכיון.`,
 					});
