@@ -50,14 +50,14 @@ class Utils {
 		return Embed;
 	}
 
-	static button(Style, Label, Emoji, Id, Disabled) {
+	static button(style, label, emoji, id, disabled) {
 		const Row = new ActionRowBuilder().addComponents(
 			new ButtonBuilder()
-				.setCustomId(Id)
-				.setLabel(Label)
-				.setStyle(Style)
-				.setEmoji(Emoji)
-				.setDisabled(Disabled)
+				.setCustomId(id)
+				.setLabel(label)
+				.setStyle(style)
+				.setEmoji(emoji)
+				.setDisabled(disabled)
 		);
 
 		return Row;

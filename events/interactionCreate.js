@@ -13,7 +13,7 @@ export default (Bot) => {
 	Bot.on("interactionCreate", async (interaction) => {
 		if (interaction.type === InteractionType.ModalSubmit) {
 			if (interaction.customId === "securityCheck") {
-				let Questions = config.security_check.questions.map((x) => x.name);
+				let QuestionName = config.security_check.questions.map((x) => x.name);
 
 				let fields = [];
 
@@ -25,15 +25,15 @@ export default (Bot) => {
 
 				let Value = fields.map((x) => x.value);
 				let Output = Value.map((x, i) => ({
-					Questions: Questions[i],
+					QuestionName: QuestionName[i],
 					Value: x,
 				}));
 				let Content = Output.map(
-					(x, index) => `\n **${x.Questions}: ${x.Value}**`
+					(x, index) => `\n**${x.QuestionName}: ${x.Value}**`
 				).join();
 
 				const Channel = interaction.guild.channels.cache.find(
-					(x) => x.name === "✅・בידוק-בטחוני" + "-" + interaction.user.id
+					(x) => x.name === "🚓・" + interaction.user.username
 				);
 
 				await interaction.deferReply({ ephemeral: true });
@@ -72,7 +72,7 @@ export default (Bot) => {
 
 					interaction.guild.channels
 						.create({
-							name: "✅・בידוק-בטחוני" + "-" + interaction.user.id,
+							name: "🚓・" + interaction.user.username,
 							type: ChannelType.GuildText,
 							parent: config.security_check.category,
 							permissionOverwrites: PermissionsArray,
@@ -84,9 +84,14 @@ export default (Bot) => {
 							});
 
 							Channel.send({
+								content: `@everyone`,
 								embeds: [
 									Utils.embed(
-										`__**מידע על העובר בדיקת בטחון:**__${interaction.user}\n(\`${interaction.user.id}\`) \n${Content}\nאנא בחנו את עובר בדיקת הבטחון בצורה נטרלית ומקצועית. יש לתחקר את עובר בדיקת הבטחון על מנת להעביר/לא להעביר אותו. \n`,
+										`__**מידע על העובר בדיקת בטחון:**__
+										${interaction.user.id} (\`${interaction.user.id}\`)
+										${Content}
+										\n\`אנא בחנו את עובר בדיקת הבטחון בצורה נטרלית ומקצועית. יש לתחקר את החשוד על מנת להעביר/לא להעביר אותו.\`
+										\n`,
 										interaction.guild,
 										Bot,
 										interaction.user
@@ -111,60 +116,9 @@ export default (Bot) => {
 					interaction.member.roles.cache.has(x)
 				) &&
 				![interaction.guild.ownerId].includes(interaction.user.id)
-			) {
-				await interaction.deferReply({ ephemeral: true });
-
-				interaction.followUp({
-					content: `רק מורשים יכולים להשתמש במערכת הבידוק הבטחוני.`,
-					ephemeral: true,
-				});
-
-				return;
-			} else {
-				await interaction.update({
-					components: [
-						new ActionRowBuilder({
-							components: [
-								ButtonBuilder.from(
-									interaction.message.components[0].components[0]
-								).setDisabled(true),
-								ButtonBuilder.from(
-									interaction.message.components[0].components[1]
-								),
-								ButtonBuilder.from(
-									interaction.message.components[0].components[2]
-								),
-							],
-						}),
-					],
-				});
-
-				interaction.followUp({
-					content: `הבידוק הביטחוני אושר בהצלחה!`,
-					ephemeral: true,
-				});
-
-				interaction.channel.send({
-					content: `היי! <@!${interaction.channel.name.replace(
-						"✅・בידוק-בטחוני-",
-						""
-					)}>, הבדיקה הביטחונית אושרה בהצלחה על ידי צוות הבידוק.`,
-				});
-				return;
-			}
-		}
-
-		if (interaction.customId === "archiveTicket") {
-			await interaction.deferReply({ ephemeral: true });
-
-			if (
-				!config.security_check.staff_roles.some((x) =>
-					interaction.member.roles.cache.has(x)
-				) &&
-				![interaction.guild.ownerId].includes(interaction.user.id)
 			)
 				return interaction.followUp({
-					content: `Only authorities can use the security_check archive system.`,
+					content: `רק מורשים יכולים להשתמש במערכת הבידוק הבטחוני.`,
 					ephemeral: true,
 				});
 
@@ -172,42 +126,64 @@ export default (Bot) => {
 				interaction.channel.parentId === config.security_check.archive_category
 			)
 				return interaction.followUp({
-					content: `This security_check is already archived.`,
+					content: `חדר זה כבר נמצא בארכיון`,
 					ephemeral: true,
 				});
 
-			let Parent = interaction.guild.channels.cache.get(
-				config.security_check.archive_category
+			const userToRole = interaction.guild.members.cache.get(
+				interaction.channel.name.replace("🚓・", "")
 			);
 
-			interaction.channel.permissionOverwrites.delete(
-				interaction.channel.name.replace("✅・בידוק-בטחוני-", "")
-			);
+			if (userToRole) {
+				const verifiedRole = interaction.guild.roles.cache.get(
+					config.security_check.verified_roles
+				);
 
-			interaction.channel
-				.setParent(Parent.id, { lockPermissions: false })
-				.then(async (x) => {
-					x.setName(
-						interaction.channel.name.replace("✅・בידוק-בטחוני", "ארכיון")
-					);
+				if (verifiedRole) {
+					userToRole.roles.add(verifiedRole).catch((error) => {
+						console.error("Failed to add role to user:", error);
+					});
+				}
+			}
 
-					interaction.message.edit({
-						embeds: [
-							Utils.embed(
-								interaction.message.embeds.map((x) => x.description).join(""),
-								interaction.guild,
-								Bot,
-								""
-							),
-						],
-						components: [],
+			interaction.channel.send({
+				content: `היי <@!${interaction.channel.name.replace(
+					"🚓・",
+					""
+				)}>הבדיקה הביטחונית אושרה בהצלחה על ידי צוות הבידוק. חדר זה יעבור לארכיון בעוד כ60 שניות.`,
+			});
+
+			setTimeout(function () {
+				let Parent = interaction.guild.channels.cache.get(
+					config.security_check.archive_category
+				);
+
+				interaction.channel.permissionOverwrites.delete(
+					interaction.channel.name.replace("🚓・", "")
+				);
+
+				interaction.channel
+					.setParent(Parent.id, { lockPermissions: false })
+					.then(async (x) => {
+						x.setName(interaction.channel.name.replace("🚓・", "ארכיון"));
+
+						interaction.message.edit({
+							embeds: [
+								Utils.embed(
+									interaction.message.embeds.map((x) => x.description).join(""),
+									interaction.guild,
+									Bot,
+									""
+								),
+							],
+							components: [],
+						});
 					});
 
-					interaction.followUp({
-						content: `Ticket successfully archived.`,
-						ephemeral: true,
-					});
+				interaction.channel.send({
+					content: `החשוד אומת בהצלחה וחדר זה עבר לארכיון.`,
 				});
+			}, 60000);
 		}
 		/*
 		if (interaction.customId === "deleteTicket") {

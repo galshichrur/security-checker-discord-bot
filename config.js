@@ -14,6 +14,7 @@ export default {
 		message:
 			"על מנת לקבל גישה לצפות בשרת, עליך לעבור בידוק בטחוני. אנא לחץ על אימות.",
 		staff_roles: ["1142153054217568256"],
+		verified_roles: ["1141694434409447515"],
 		buttons: [
 			{
 				style: ButtonStyle.Success,
@@ -36,7 +37,7 @@ export default {
 				name: "שם",
 				label: "מה השם שלך?",
 				style: TextInputStyle.Short,
-				min_length: 0,
+				min_length: 2,
 				max_length: 16,
 				place_holder: "איתמר",
 				required: true,
@@ -46,7 +47,7 @@ export default {
 				name: "מגדר",
 				label: "מה המגדר שלך?",
 				style: TextInputStyle.Short,
-				min_length: 0,
+				min_length: 3,
 				max_length: 4,
 				place_holder: "זכר/נקבה/אחר",
 				required: true,
@@ -56,7 +57,7 @@ export default {
 				name: "גיל",
 				label: "מה הגיל שלך?",
 				style: TextInputStyle.Short,
-				min_length: 0,
+				min_length: 1,
 				max_length: 2,
 				place_holder: "8",
 				required: true,
