@@ -5,7 +5,7 @@ const { ButtonStyle, TextInputStyle } = Discord;
 export default {
 	token:
 		"MTE0MjIxMDE4MzUzMjEyNjMxMg.GFXg5E.eZODctxICdiL3K7j-AoG3886IXb793jTE58ODQ",
-	activity_status: { name: "נשק יש?", type: "PLAYING" },
+	activity_status: { name: "לוכד מחבלים", type: "PLAYING" },
 	guild_id: "1141449357988728903",
 	security_check: {
 		channel: "1142210688568275065",
@@ -14,7 +14,7 @@ export default {
 		message:
 			"על מנת לקבל גישה לצפות בשרת, עליך לעבור בידוק בטחוני. אנא לחץ על אימות.",
 		staff_roles: ["1142153054217568256"],
-		verified_roles: ["1141694434409447515"],
+		verified_roles: "1141694434409447515",
 		buttons: [
 			{
 				style: ButtonStyle.Success,
@@ -25,9 +25,9 @@ export default {
 			},
 			{
 				style: ButtonStyle.Danger,
-				label: "לא עבר",
+				label: "נכשל",
 				emote: "❌",
-				id: "failedSecurityCheck",
+				id: "failSecurityCheck",
 				disabled: false,
 			},
 		],
