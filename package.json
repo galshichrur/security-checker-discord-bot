@@ -1,0 +1,14 @@
+{
+	"name": "security-checker-bot",
+	"version": "0.1.0",
+	"description": "Security check discord bot to check the users if they are allowed to join.",
+	"type": "module",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js"
+	},
+	"author": "maybegal",
+	"dependencies": {
+		"discord.js": "^14.13.0"
+	}
+}
