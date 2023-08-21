@@ -39,7 +39,7 @@ export default {
 				style: TextInputStyle.Short,
 				min_length: 2,
 				max_length: 16,
-				place_holder: "איתמר",
+				place_holder: "תומר",
 				required: true,
 			},
 			{
@@ -59,7 +59,7 @@ export default {
 				style: TextInputStyle.Short,
 				min_length: 1,
 				max_length: 2,
-				place_holder: "8",
+				place_holder: "23",
 				required: true,
 			},
 		],
