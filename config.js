@@ -3,8 +3,7 @@ const { ButtonStyle, TextInputStyle } = Discord;
 
 //config
 export default {
-	token:
-		"MTE0MjIxMDE4MzUzMjEyNjMxMg.GFXg5E.eZODctxICdiL3K7j-AoG3886IXb793jTE58ODQ",
+	token: "", // Add your token
 	activity_status: { name: "לוכד מחבלים", type: "PLAYING" },
 	guild_id: "1141449357988728903",
 	security_check: {
@@ -13,8 +12,8 @@ export default {
 		archive_category: "1142153346048864306",
 		message:
 			"על מנת לקבל גישה לצפות בשרת, עליך לעבור בידוק בטחוני. אנא לחץ על אימות.",
-		staff_roles: ["1142153054217568256"],
-		verified_roles: "1141694434409447515",
+		staff_roles: [""], // Add the staff role ID
+		verified_roles: "", // Add the verified role ID
 		buttons: [
 			{
 				style: ButtonStyle.Success,
